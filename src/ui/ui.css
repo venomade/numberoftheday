@@ -1,0 +1,7 @@
+headerbar {
+  background-color: @theme-bg-color;
+  border: none;
+  box-shadow: none;
+  margin: 0;
+  padding: 0;
+}
