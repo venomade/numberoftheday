@@ -95,11 +95,11 @@ fn show_about(window: &ApplicationWindow) {
         .transient_for(window)
         .program_name("Number of the Day")
         .authors(["Venomade"])
-        .version("0.0.1")
+        .version("0.0.2")
         .copyright("© 2024 Venomade")
         .license_type(gtk::License::Gpl30)
         .comments("Shows a number of the day, general or personal")
-        .website("https://git.sr.ht/~venomade/numberoftheday")
+        .website("https://github.com/venomade/numberoftheday")
         .build();
 
     about.present();
