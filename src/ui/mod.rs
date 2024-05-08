@@ -1,13 +1,9 @@
 use super::notd;
-use adw::{
-    prelude::*, AboutWindow, ActionRow, Application, HeaderBar, PreferencesGroup, PreferencesPage,
-    PreferencesWindow, Toast, ToastOverlay,
-};
 use gtk::{
     gdk::Display,
     gio::{ActionEntry, Menu, MenuItem},
     prelude::*,
-    Align, ApplicationWindow, Box, Entry, EntryBuffer, Label, MenuButton, Orientation,
+    AboutDialog, Align, Application, ApplicationWindow, Box, Entry, EntryBuffer, HeaderBar, Label, MenuButton, Orientation,
 };
 
 pub fn build_ui(app: &Application) {
@@ -18,22 +14,6 @@ pub fn build_ui(app: &Application) {
         ))
         .use_markup(true)
         .build();
-
-    let toast_overlay = ToastOverlay::new();
-
-    let current_date = notd::current_datetime();
-
-    let date_toast = Toast::builder()
-        .title(format!(
-            // TODO: Follow System Time Formatting
-            "Today's Date: {}/{}/{}",
-            current_date.day_of_month(),
-            current_date.month(),
-            current_date.year()
-        ))
-        .build();
-
-    date_toast.set_timeout(2);
 
     let name_buffer = EntryBuffer::new(Some("Name"));
 
@@ -59,8 +39,6 @@ pub fn build_ui(app: &Application) {
     gtk_box.append(&subtitle_label);
     gtk_box.append(&number_label);
 
-    toast_overlay.set_child(Some(&gtk_box));
-
     name_entry.connect_changed(move |_| {
         let name = name_buffer.text();
         let pnum = notd::personal_number_of_the_day(&name);
@@ -77,13 +55,10 @@ pub fn build_ui(app: &Application) {
 
     titlebar.set_opacity(1.0);
 
-    let preferences_menu = MenuItem::new(Some("Preferences"), Some("win.preferences"));
     let about_menu = MenuItem::new(Some("About"), Some("win.about"));
 
     let menu = Menu::new();
 
-    // TODO Work on Preferences
-    // menu.append_item(&preferences_menu);
     menu.append_item(&about_menu);
 
     let menu_button = MenuButton::builder()
@@ -101,37 +76,26 @@ pub fn build_ui(app: &Application) {
         })
         .build();
 
-    let action_preferences = ActionEntry::builder("preferences")
-        .activate(|window: &ApplicationWindow, _, _| {
-            show_preferences(&window);
-        })
-        .build();
-
     let window = ApplicationWindow::builder()
         .application(app)
         .title("Number of the Day")
-        .child(&toast_overlay)
+        .child(&gtk_box)
         .titlebar(&titlebar)
         .width_request(300)
         .height_request(400)
         .build();
 
-    window.add_action_entries([action_about, action_preferences]);
-
-    window.connect_show(move |_| {
-        toast_overlay.add_toast(date_toast.clone());
-    });
+    window.add_action_entries([action_about]);
 
     window.present();
 }
 
 fn show_about(window: &ApplicationWindow) {
-    let about = AboutWindow::builder()
+    let about = AboutDialog::builder()
         .transient_for(window)
-        .application_name("Number of the Day")
-        .developer_name("Venomade")
+        .program_name("Number of the Day")
+        .authors(["Venomade"])
         .version("0.0.1")
-        .developers(vec!["Venomade"])
         .copyright("© 2024 Venomade")
         .license_type(gtk::License::Gpl30)
         .comments("Shows a number of the day, general or personal")
@@ -139,27 +103,6 @@ fn show_about(window: &ApplicationWindow) {
         .build();
 
     about.present();
-}
-
-fn show_preferences(window: &ApplicationWindow) {
-    let preferences_group = PreferencesGroup::builder().title("Preferences").build();
-
-    let action_row = ActionRow::builder().title("Action Row").build();
-
-    let preferences_page = PreferencesPage::builder()
-        .description("Bungus Bungus")
-        .title("Bungus")
-        .build();
-
-    let preferences = PreferencesWindow::builder()
-        .transient_for(window)
-        .display(&Display::default().expect("Could not get display"))
-        .content(&preferences_page)
-        .build();
-
-    preferences.set_visible_page(&preferences_page);
-
-    preferences.present();
 }
 
 pub fn load_css() {

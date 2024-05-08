@@ -1,7 +1,7 @@
 mod notd;
 mod ui;
 
-use adw::Application;
+use gtk::Application;
 use gtk::glib;
 use gtk::prelude::*;
 use ui::{build_ui, load_css};
